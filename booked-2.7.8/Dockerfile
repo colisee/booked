@@ -1,13 +1,20 @@
-ARG PHP_VERSION=""
-FROM php:${PHP_VERSION:+${PHP_VERSION}-}apache
+#
+# Dockerfile: php-apache container
+#
+# Installation: build the container using docker-compose on the CLI
+#
+
+ARG  PHP_VERSION
+FROM php:${PHP_VERSION:-7}-apache
 
 # Enable the rewrite modules
 RUN  a2enmod rewrite;
 
 # retrieve additional php modules 
+ARG  PHP_MOD
 ADD  https://raw.githubusercontent.com/mlocati/docker-php-extension-installer/master/install-php-extensions /usr/local/bin/
 RUN  chmod uga+x /usr/local/bin/install-php-extensions; \
-     install-php-extensions mysqli;
+     install-php-extensions ${PHP_MOD};
 
 # Get the php project and set the proper ownership
 COPY booked-2.7.8.zip ${PWD}
