@@ -1,20 +1,6 @@
 version: "3.2"
 services:
-  php-apache:
-    build:
-      context: './booked-2.7.8/'
-      args:
-        PHP_MOD: ${PHP_MOD}
-        PHP_VERSION: ${PHP_VERSION}
-    depends_on:
-      - mysql
-    networks:
-      - frontend
-      - backend
-    ports:
-      - "80:80"
-    container_name: booked-php-apache
-  mysql:
+  db:
     image: mysql:${MYSQL_VERSION:-latest}
     restart: always
     ports:
@@ -22,11 +8,27 @@ services:
     networks:
       - backend
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     container_name: booked-db
+  web:
+    build:
+      context: './booked-2.7.8/'
+      args:
+        PHP_MOD: ${PHP_MOD}
+        PHP_VERSION: ${PHP_VERSION}
+        INSTALLATION_PASSWORD: ${INSTALLATION_PASSWORD}
+        PWD_USR: ${MYSQL_PASSWORD}
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+    container_name: booked-web
 networks:
   frontend:
   backend:
